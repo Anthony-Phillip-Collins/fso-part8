@@ -1,0 +1,23 @@
+{
+  "name": "fso-part8",
+  "version": "1.0.0",
+  "description": "Exercises 8.1.-8.7",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anthony-Phillip-Collins/fso-part8.git"
+  },
+  "author": "Anthony Collins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anthony-Phillip-Collins/fso-part8/issues"
+  },
+  "homepage": "https://github.com/Anthony-Phillip-Collins/fso-part8#readme",
+  "dependencies": {
+    "@apollo/server": "^4.3.3",
+    "graphql": "^16.6.0"
+  }
+}
