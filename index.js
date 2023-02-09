@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server');
 const { startStandaloneServer } = require('@apollo/server/standalone');
+const { uuid } = require('uuidv4');
 
 let authors = [
   {
@@ -114,6 +115,10 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
   }
+
+  type Mutation {
+    addBook(title: String!, published: Int!, author: String!, genres: [String!]!): Book
+  }
 `;
 
 const booksOf = ({ author, genre }) => {
@@ -136,8 +141,31 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: (root, args) => (args ? booksOf(args) : books),
+    allBooks: (root, args) =>
+      Object.keys(args).length > 0 ? booksOf(args) : books,
     allAuthors: () => authors,
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      const newBook = { ...args, id: uuid() };
+      const bookExists = books.find(
+        ({ author, title }) => author === args.author && title === args.title
+      );
+      const authorExists = authors.find(({ name }) => name === args.author);
+
+      if (bookExists) {
+        throw new Error(
+          `The book with the title "${args.title}" by ${args.author} already exists!`
+        );
+      }
+
+      if (!authorExists) {
+        authors.push({ name: args.author });
+      }
+
+      books.push(newBook);
+      return newBook;
+    },
   },
   Author: {
     bookCount: (root) => {
