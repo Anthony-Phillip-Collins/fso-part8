@@ -1,11 +1,11 @@
 import { useQuery } from '@apollo/client';
 import { ALL_AUTHORS } from '../services/queries';
-import AuthorsBirthYear from './AuthorsBirthYear';
+import AuthorsBirthYear from '../components/AuthorsBirthYear';
 
-const Authors = (props) => {
+const Authors = () => {
   const { loading, error, data } = useQuery(ALL_AUTHORS);
 
-  if (!props.show || loading) {
+  if (loading) {
     return null;
   }
 

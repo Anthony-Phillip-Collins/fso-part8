@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Authors from './components/Authors';
-import Books from './components/Books';
-import NewBook from './components/NewBook';
+import Authors from './routes/Authors';
+import Books from './routes/Books';
+import NewBook from './routes/AddBook';
 
 const App = () => {
   const [page, setPage] = useState('authors');
