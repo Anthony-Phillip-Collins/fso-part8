@@ -6,6 +6,7 @@ const Author = require('./src/models/Author');
 const Book = require('./src/models/Book');
 let { authors, books } = require('./src/data/dummies');
 const { GraphQLError } = require('graphql');
+const { PORT } = require('./src/utils/config');
 
 /* Set to true to delete all documents and repopulate database from dummies */
 const RESET_DB = true;
@@ -219,7 +220,7 @@ const server = new ApolloServer({
 });
 
 startStandaloneServer(server, {
-  listen: { port: 4000 },
+  listen: { port: PORT },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`);
 });
