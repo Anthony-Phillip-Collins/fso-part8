@@ -9,6 +9,7 @@ import Books from './routes/Books';
 import AddBook from './routes/AddBook';
 import Home from './routes/Home';
 import Authors from './routes/Authors';
+import RootBoundary from './components/RootBoundary';
 
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql',
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
+    errorElement: <RootBoundary />,
     children: [
       {
         path: '',
