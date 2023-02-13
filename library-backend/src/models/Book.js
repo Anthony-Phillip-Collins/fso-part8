@@ -4,9 +4,9 @@ const uniqueValidator = require('mongoose-unique-validator');
 const schema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
-    unique: true,
-    minlength: 5,
+    required: [true, 'The title of the book is required!'],
+    unique: [true, 'A book with the same title already exists!'],
+    minlength: [5, 'The title of the book must have at least 5 characters!'],
   },
   published: {
     type: Number,

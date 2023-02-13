@@ -1,10 +1,11 @@
 const { ApolloServer } = require('@apollo/server');
+// const { ApolloServerErrorCode } = require('@apollo/server/errors');
 const { startStandaloneServer } = require('@apollo/server/standalone');
-const { uuid } = require('uuidv4');
 const connectToDb = require('./src/utils/connectToDb');
 const Author = require('./src/models/Author');
 const Book = require('./src/models/Book');
 let { authors, books } = require('./src/data/dummies');
+const { GraphQLError } = require('graphql');
 
 /* Set to true to delete all documents and repopulate database from dummies */
 const RESET_DB = true;
@@ -112,30 +113,88 @@ const resolvers = {
         name: args.author,
       });
 
-      if (author) {
-        const bookExists = await Book.findOne({
-          title: args.title,
-          author: author._id.toString(),
-        });
+      if (!author) {
+        //   const bookExists = await Book.findOne({
+        //     title: args.title,
+        //     author: author._id.toString(),
+        //   });
 
-        if (bookExists) {
-          throw new Error(
-            `The book with the title "${args.title}" by ${args.author} already exists!`
+        //   if (bookExists) {
+        //     throw new GraphQLError(
+        //       `The book with the title "${args.title}" by ${args.author} already exists!`,
+        //       {
+        //         extensions: {
+        //           code: 'BAD_USER_INPUT',
+        //           http: {
+        //             status: 400,
+        //           },
+        //           invalidArgs: { title: args.title, author: args.author },
+        //         },
+        //       }
+        //     );
+        //   }
+        // } else {
+
+        // author = await new Author({
+        //   name: args.author,
+        //   born: args.born || null,
+        // })
+        //   .save()
+        //   .then((p) => {
+        //     console.log(p, 'saved');
+        //   })
+        //   .catch((error) => {
+        //     console.log('ERROR', error.message);
+        //     close();
+        //   });
+
+        try {
+          author = await new Author({
+            name: args.author,
+            born: args.born || null,
+          }).save();
+        } catch (error) {
+          const msg = error.errors.name.properties.message;
+          const e = new GraphQLError(
+            `Saving the author ${args.author} failed!`,
+            {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                // http: {
+                //   status: 400,
+                // },
+                // invalidArgs: { author: args.author },
+                error,
+              },
+            }
           );
+
+          console.log('WTF', e);
+
+          throw e;
         }
-      } else {
-        author = await new Author({
-          name: args.author,
-          born: args.born || null,
-        }).save();
       }
 
-      const newBook = await new Book({
-        ...args,
-        author: author._id.toString(),
-      }).save();
+      let book;
+      try {
+        book = await new Book({
+          ...args,
+          author: author._id.toString(),
+        }).save();
+      } catch (error) {
+        throw new GraphQLError(
+          `Saving book with the title "${args.title}" by ${args.author} failed!`,
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: { title: args.title, author: args.author },
+              error,
+            },
+          }
+        );
+      }
 
-      return newBook.populate('author');
+      return book.populate('author');
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name });
