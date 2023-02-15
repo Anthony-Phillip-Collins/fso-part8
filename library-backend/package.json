@@ -19,8 +19,10 @@
   "homepage": "https://github.com/Anthony-Phillip-Collins/fso-part8#readme",
   "dependencies": {
     "@apollo/server": "^4.3.3",
+    "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "graphql": "^16.6.0",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.9.1",
     "mongoose-unique-validator": "^3.1.0",
     "nodemon": "^2.0.20",

@@ -9,17 +9,17 @@ const AddBook = () => {
     refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
   });
 
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [published, setPublished] = useState('');
-  const [genre, setGenre] = useState('');
+  const [title, setTitle] = useState('Some Title');
+  const [author, setAuthor] = useState('Some Author');
+  const [published, setPublished] = useState('1910');
+  const [genre, setGenre] = useState('design');
   const [genres, setGenres] = useState([]);
 
   const submit = async (event) => {
     event.preventDefault();
 
     await addBook({
-      variables: { title, author, published, genres },
+      variables: { title, author, published: parseInt(published) || 0, genres },
     });
 
     setTitle('');
