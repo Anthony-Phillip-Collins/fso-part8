@@ -4,7 +4,7 @@
   "description": "Exercises 8.1.-8.7",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "PORT=4000 nodemon -r dotenv/config index.js dotenv_config_path=.env.local",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

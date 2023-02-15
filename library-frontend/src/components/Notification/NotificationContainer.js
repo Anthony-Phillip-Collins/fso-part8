@@ -10,7 +10,7 @@ function NotificationContainer({ text, isError }) {
     clearTimeout(timeoutId);
     timeoutId.current = setTimeout(() => {
       setNotification(null);
-    }, 10000);
+    }, 5000);
 
     setNotification(text);
 

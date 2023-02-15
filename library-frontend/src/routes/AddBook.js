@@ -9,17 +9,17 @@ const AddBook = () => {
     refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
   });
 
-  const [title, setTitle] = useState('Som');
-  const [author, setAuthor] = useState('Some Author');
-  const [published, setPublished] = useState('2019');
-  const [genre, setGenre] = useState('Some Genre');
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [published, setPublished] = useState('');
+  const [genre, setGenre] = useState('');
   const [genres, setGenres] = useState([]);
 
   const submit = async (event) => {
     event.preventDefault();
 
     await addBook({
-      variables: { title, author, published: parseInt(published), genres },
+      variables: { title, author, published, genres },
     });
 
     setTitle('');
@@ -30,45 +30,25 @@ const AddBook = () => {
   };
 
   const addGenre = () => {
-    setGenres(genres.concat(genre));
-    setGenre('');
+    if (genre && genre.length > 0) {
+      setGenres(genres.concat(genre));
+      setGenre('');
+    }
   };
 
+  let notification = '';
+
   if (error) {
-    // console.log(1, error);
-    // console.log(2.1, error.networkError);
-    // console.log(
-    //   2.2,
-    //   error.networkError?.result?.errors[0]?.extensions?.error?.errors?.name
-    //     ?.message
-    // );
-    // console.log(3, error.graphQLErrors[0] || 'No GQL Errors');
-    // console.log(4, error.clientErrors);
-    // console.log(5, error.message);
-    // console.log(6, Object.keys(error.graphQLErrors[0]));
-    // console.log(
-    //   'Network Error',
-    //   Object.keys(
-    //     error.networkError?.result?.errors[0]?.extensions?.error?.errors || {}
-    //   )
-    // );
-    // console.log(
-    //   'GraphQL Error',
-    //   Object.keys(error.graphQLErrors[0]?.extensions?.error?.errors) || {}
-    // );
-    // console.log('C', getErrorMessageFromApolloGraphQL(error));
+    notification = getErrorMessageFromApolloGraphQL(error);
+  } else if (data) {
+    notification = `The book "${data.addBook.title}" by  ${data.addBook.author.name} has been added.`;
   }
 
   return (
     <div>
       <h2>add book</h2>
 
-      {error && (
-        <NotificationContainer
-          text={getErrorMessageFromApolloGraphQL(error)}
-          isError={true}
-        />
-      )}
+      {<NotificationContainer text={notification} isError={error} />}
 
       <form onSubmit={submit}>
         <div>
