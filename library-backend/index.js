@@ -237,11 +237,12 @@ const server = new ApolloServer({
 
 startStandaloneServer(server, {
   listen: { port: PORT },
-  context: async ({ req, res }) => {
-    /* Transforming args sent by client before they reach validation. */
-    req.body.variables.published = parseInt(req.body.variables.published) || 0;
-    return { foo: 'bar' };
-  },
+  /* below context causes sandbox to break */
+  // context: async ({ req, res }) => {
+  //   /* Transforming args sent by client before they reach validation. */
+  //   req.body.variables.published = parseInt(req.body.variables.published) || 0;
+  //   return { foo: 'bar' };
+  // },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`);
 });
