@@ -1,10 +1,13 @@
 import { useMutation } from '@apollo/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../services/queries';
+import { getErrorMessageFromApolloGraphQL } from '../services/util';
 
 export default function AuthorsBirthYear({ authors }) {
   const [name, setName] = useState('');
   const [born, setBorn] = useState('');
+  const { setNotification } = useOutletContext();
 
   const [editAuthor, { data, loading, error }] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
@@ -20,6 +23,21 @@ export default function AuthorsBirthYear({ authors }) {
     setName('');
     setBorn('');
   };
+
+  useEffect(() => {
+    if (error) {
+      setNotification({
+        text: getErrorMessageFromApolloGraphQL(error),
+        isError: true,
+      });
+    } else if (data) {
+      setNotification({
+        text: `The birth year of "${data.editAuthor.name}" has been changed to ${data.editAuthor.born}.`,
+        isError: false,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, data]);
 
   return (
     <>

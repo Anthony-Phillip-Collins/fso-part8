@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { ALL_BOOKS } from '../services/queries';
 
 const Books = () => {
-  const { loading, error, data } = useQuery(ALL_BOOKS);
+  const { loading, data } = useQuery(ALL_BOOKS);
 
   if (loading) {
     return null;

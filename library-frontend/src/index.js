@@ -11,8 +11,8 @@ import {
 import Root from './routes/Root';
 import Books from './routes/Books';
 import AddBook from './routes/AddBook';
-import Home from './routes/Home';
 import Authors from './routes/Authors';
+import Login from './routes/Login';
 import RootBoundary from './components/RootBoundary';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -47,10 +47,6 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <Home />,
-      },
-      {
-        path: 'authors',
         element: <Authors />,
       },
       {
@@ -60,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: 'addbook',
         element: <AddBook />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
       },
     ],
   },

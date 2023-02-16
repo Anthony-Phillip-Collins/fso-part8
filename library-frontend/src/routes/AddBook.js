@@ -1,14 +1,16 @@
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import NotificationContainer from '../components/Notification/NotificationContainer';
+import { useOutletContext } from 'react-router-dom';
 import loginService from '../services/login';
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../services/queries';
 import { getErrorMessageFromApolloGraphQL } from '../services/util';
 
 const AddBook = () => {
-  const [addBook, { data, loading, error }] = useMutation(ADD_BOOK, {
+  const [addBook, { data, error }] = useMutation(ADD_BOOK, {
     refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
   });
+
+  const { setNotification } = useOutletContext();
 
   const [title, setTitle] = useState('Some Title');
   const [author, setAuthor] = useState('Some Author');
@@ -37,13 +39,20 @@ const AddBook = () => {
     }
   };
 
-  let notification = '';
-
-  if (error) {
-    notification = getErrorMessageFromApolloGraphQL(error);
-  } else if (data) {
-    notification = `The book "${data.addBook.title}" by  ${data.addBook.author.name} has been added.`;
-  }
+  useEffect(() => {
+    if (error) {
+      setNotification({
+        text: getErrorMessageFromApolloGraphQL(error),
+        isError: true,
+      });
+    } else if (data) {
+      setNotification({
+        text: `The book "${data.addBook.title}" by  ${data.addBook.author.name} has been added.`,
+        isError: false,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error, data]);
 
   if (!loginService.getUser()) {
     return (
@@ -56,8 +65,6 @@ const AddBook = () => {
   return (
     <div>
       <h2>add book</h2>
-
-      {<NotificationContainer text={notification} isError={error} />}
 
       <form onSubmit={submit}>
         <div>

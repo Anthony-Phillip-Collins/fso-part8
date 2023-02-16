@@ -20,7 +20,7 @@ const setUser = (user) => {
 
 const getUser = () => {
   const userString = window.localStorage.getItem(Key);
-  return userString && JSON.parse(userString);
+  return userString && userString !== 'undefined' && JSON.parse(userString);
 };
 
 const loginService = { logout, setUser, getUser };

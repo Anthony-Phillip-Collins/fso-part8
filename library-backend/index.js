@@ -153,7 +153,6 @@ const resolvers = {
       return user;
     },
     login: async (root, { username, password }) => {
-      console.log('/////// LOGIN', username, password);
       const user = await User.findOne({ username });
       const passwordCorrect =
         user === null

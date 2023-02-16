@@ -1,25 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Notification from './Notification';
 
-function NotificationContainer({ text, isError }) {
-  const [notification, setNotification] = useState('');
-
+function NotificationContainer({ notification, setNotification }) {
   let timeoutId = useRef();
 
   useEffect(() => {
     clearTimeout(timeoutId);
-    timeoutId.current = setTimeout(() => {
-      setNotification(null);
-    }, 5000);
 
-    setNotification(text);
+    timeoutId.current = setTimeout(() => {
+      setNotification({ text: '' });
+    }, 5000);
 
     return () => {
       clearTimeout(timeoutId.current);
     };
-  }, [text]);
+  }, [notification.text]);
 
-  return <Notification text={notification} isError={isError} />;
+  return (
+    <Notification text={notification.text} isError={notification.isError} />
+  );
 }
 
 export default NotificationContainer;
