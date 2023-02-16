@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NotificationContainer from '../components/Notification/NotificationContainer';
+import loginService from '../services/login';
 import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../services/queries';
 import { getErrorMessageFromApolloGraphQL } from '../services/util';
 
@@ -42,6 +43,14 @@ const AddBook = () => {
     notification = getErrorMessageFromApolloGraphQL(error);
   } else if (data) {
     notification = `The book "${data.addBook.title}" by  ${data.addBook.author.name} has been added.`;
+  }
+
+  if (!loginService.getUser()) {
+    return (
+      <div>
+        <h2>You need to be logged in to add books.</h2>
+      </div>
+    );
   }
 
   return (

@@ -1,9 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  createHttpLink,
+} from '@apollo/client';
 import Root from './routes/Root';
 import Books from './routes/Books';
 import AddBook from './routes/AddBook';
@@ -11,8 +15,27 @@ import Home from './routes/Home';
 import Authors from './routes/Authors';
 import RootBoundary from './components/RootBoundary';
 
-const client = new ApolloClient({
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import { setContext } from '@apollo/client/link/context';
+import loginService from './services/login';
+
+const httpLink = createHttpLink({
   uri: 'http://localhost:4000/graphql',
+});
+
+const authLink = setContext((_, { headers }) => {
+  const token = loginService.getUser()?.token;
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+});
+
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 
@@ -46,8 +69,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <ApolloProvider client={client}>
-    <RouterProvider router={router}>
-      <App />
-    </RouterProvider>
+    <RouterProvider router={router}></RouterProvider>
   </ApolloProvider>
 );

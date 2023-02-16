@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { Button, Container } from 'react-bootstrap';
 import { Outlet, useNavigate } from 'react-router-dom';
+import LoginFormContainer from '../components/LoginForm/LoginFormContainer';
 
 export default function Root() {
-  const [page, setPage] = useState('authors');
   const navigate = useNavigate();
   return (
-    <>
-      <div>
-        <button onClick={() => navigate('/')}>home</button>
-        <button onClick={() => navigate('/authors')}>authors</button>
-        <button onClick={() => navigate('/books')}>books</button>
-        <button onClick={() => navigate('/addbook')}>add book</button>
+    <Container>
+      <div className='mt-5 mb-5'>
+        <Button onClick={() => navigate('/')}>home</Button>
+        <Button onClick={() => navigate('/authors')}>authors</Button>
+        <Button onClick={() => navigate('/books')}>books</Button>
+        <Button onClick={() => navigate('/addbook')}>add book</Button>
       </div>
-      <Outlet />
-    </>
+      <LoginFormContainer />
+      <div className='mt-5'>
+        <Outlet />
+      </div>
+    </Container>
   );
 }
