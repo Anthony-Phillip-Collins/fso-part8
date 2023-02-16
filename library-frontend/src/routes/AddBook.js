@@ -67,39 +67,69 @@ const AddBook = () => {
       <h2>add book</h2>
 
       <form onSubmit={submit}>
-        <div>
-          title
+        <div className='form-group mb-3'>
+          <label htmlFor='title'>Title</label>
           <input
+            type='text'
+            className='form-control'
+            id='title'
+            placeholder='Enter Title'
             value={title}
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
-        <div>
-          author
+        <div className='form-group mb-3'>
+          <label htmlFor='author'>Author</label>
           <input
+            type='text'
+            className='form-control'
+            id='author'
+            placeholder='Enter author'
             value={author}
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
-        <div>
-          published
+        <div className='form-group mb-3'>
+          <label htmlFor='published'>Published</label>
           <input
-            type='number'
+            type='text'
+            className='form-control'
+            id='published'
+            placeholder='Enter published'
             value={published}
             onChange={({ target }) => setPublished(target.value)}
           />
         </div>
-        <div>
-          <input
-            value={genre}
-            onChange={({ target }) => setGenre(target.value)}
-          />
-          <button onClick={addGenre} type='button'>
-            add genre
-          </button>
+        <div className='form-group mb-3'>
+          <label htmlFor='genre'>Genre</label>
+          <div className='d-flex'>
+            <input
+              type='text'
+              className='form-control'
+              id='genre'
+              placeholder='Enter genre'
+              value={genre}
+              onChange={({ target }) => setGenre(target.value)}
+            />
+            <button
+              onClick={addGenre}
+              type='button'
+              style={{ whiteSpace: 'nowrap' }}
+              className='btn btn-outline-primary'
+            >
+              add genre
+            </button>
+          </div>
         </div>
-        <div>genres: {genres.join(' ')}</div>
-        <button type='submit'>create book</button>
+        <div>
+          <span>Genres: </span>
+          {genres.map((genre) => (
+            <span class='badge bg-dark me-1'>{genre}</span>
+          ))}
+        </div>
+        <button type='submit' className='btn btn-primary mt-3'>
+          create book
+        </button>
       </form>
     </div>
   );

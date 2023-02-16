@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { ALL_AUTHORS } from '../services/queries';
 import AuthorsBirthYear from '../components/AuthorsBirthYear';
+import { Container, Table } from 'react-bootstrap';
 
 const Authors = () => {
   const { loading, error, data } = useQuery(ALL_AUTHORS);
@@ -12,15 +13,18 @@ const Authors = () => {
   const authors = data.allAuthors;
 
   return (
-    <div>
+    <Container>
       <h2>authors</h2>
-      <table>
-        <tbody>
+
+      <Table className='mb-4'>
+        <thead>
           <tr>
-            <th></th>
-            <th>born</th>
-            <th>books</th>
+            <th>Name</th>
+            <th>Born</th>
+            <th>Books</th>
           </tr>
+        </thead>
+        <tbody>
           {authors.map((a) => (
             <tr key={a.name}>
               <td>{a.name}</td>
@@ -29,10 +33,10 @@ const Authors = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
 
       <AuthorsBirthYear authors={authors} />
-    </div>
+    </Container>
   );
 };
 

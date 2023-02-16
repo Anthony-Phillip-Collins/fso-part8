@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { Table } from 'react-bootstrap';
 import { ALL_BOOKS } from '../services/queries';
 
 const Books = () => {
@@ -13,13 +14,16 @@ const Books = () => {
   return (
     <div>
       <h2>books</h2>
-      <table>
-        <tbody>
+
+      <Table>
+        <thead>
           <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Published</th>
           </tr>
+        </thead>
+        <tbody>
           {books.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
@@ -28,7 +32,7 @@ const Books = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 };
