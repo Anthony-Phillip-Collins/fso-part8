@@ -90,6 +90,7 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
     allUsers: [User!]!
+    allGenres: [String]
     me: User
   }
 
@@ -126,6 +127,14 @@ const resolvers = {
         : await Book.find({}).populate('author'),
     allAuthors: async () => await Author.find({}),
     allUsers: async () => await User.find({}),
+    allGenres: async () => {
+      const books = await Book.find({});
+      const genres = books.reduce((result, { genres }) => {
+        const found = genres.filter((genre) => !result.includes(genre));
+        return result.concat(found);
+      }, []);
+      return genres;
+    },
     me: async (root, args, context) => {
       return context.currentUser;
     },
@@ -222,8 +231,6 @@ const resolvers = {
         });
         await book.validate();
       } catch (error) {
-        console.log(error);
-
         throw BAD_USER_INPUT_ERROR({
           message: `Saving book with the title "${args.title}" by ${args.author} failed!`,
           error,

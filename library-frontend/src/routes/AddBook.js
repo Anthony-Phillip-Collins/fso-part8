@@ -124,7 +124,9 @@ const AddBook = () => {
         <div>
           <span>Genres: </span>
           {genres.map((genre) => (
-            <span class='badge bg-dark me-1'>{genre}</span>
+            <span className='badge bg-dark me-1' key={genre}>
+              {genre}
+            </span>
           ))}
         </div>
         <button type='submit' className='btn btn-primary mt-3'>
