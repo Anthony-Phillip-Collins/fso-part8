@@ -33,7 +33,12 @@ export default function Root() {
             <Nav className='me-auto'>
               <Nav.Link href='/'>Authors</Nav.Link>
               <Nav.Link href='/books'>Books</Nav.Link>
-              {token && <Nav.Link href='/addbook'>Add Book</Nav.Link>}
+              {token && (
+                <>
+                  <Nav.Link href='/addbook'>Add Book</Nav.Link>
+                  <Nav.Link href='/recommended'>Recommended</Nav.Link>
+                </>
+              )}
             </Nav>
             <Nav>
               {token && <Nav.Link onClick={() => logout()}>logout</Nav.Link>}

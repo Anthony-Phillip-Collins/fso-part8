@@ -12,6 +12,7 @@ import Root from './routes/Root';
 import Books from './routes/Books';
 import AddBook from './routes/AddBook';
 import Authors from './routes/Authors';
+import Recommended from './routes/Recommended';
 import Login from './routes/Login';
 import RootBoundary from './components/RootBoundary';
 
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
       {
         path: 'addbook',
         element: <AddBook />,
+      },
+      {
+        path: 'recommended',
+        element: <Recommended />,
       },
       {
         path: 'login',

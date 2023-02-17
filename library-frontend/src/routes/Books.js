@@ -1,14 +1,14 @@
 import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { Table } from 'react-bootstrap';
+import BooksTable from '../components/BooksTable/BooksTable';
 import AllGenres from '../components/AllGenres';
 import { ALL_BOOKS, ALL_GENRES } from '../services/queries';
 
 const Books = () => {
-  const { loading, data } = useQuery(ALL_BOOKS, { variables: { genre: [] } });
-  const { data: allGenresData } = useQuery(ALL_GENRES);
-
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const { loading, data, refetch } = useQuery(ALL_BOOKS, {});
+
+  const { data: allGenresData } = useQuery(ALL_GENRES);
 
   const onGenreSelect = (genre) => {
     setSelectedGenres(selectedGenres.concat(genre));
@@ -17,6 +17,11 @@ const Books = () => {
   const onGenreDeselect = (genre) => {
     setSelectedGenres(selectedGenres.filter((g) => g !== genre));
   };
+
+  useEffect(() => {
+    console.log('refetch');
+    refetch({ genres: selectedGenres });
+  }, [selectedGenres]);
 
   if (loading) {
     return null;
@@ -28,33 +33,13 @@ const Books = () => {
       genres.filter((genre) => selectedGenres.includes(genre)).length >=
       selectedGenres.length
   );
+  const reactBooks = selectedGenres.length === 0 ? books : booksByGenre;
 
   return (
     <div>
       <h2>books</h2>
 
-      <Table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Published</th>
-            <th>Genres</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(selectedGenres.length === 0 ? books : booksByGenre).map((book) => {
-            return (
-              <tr key={book.title}>
-                <td>{book.title}</td>
-                <td>{book.author.name}</td>
-                <td>{book.published}</td>
-                <td>{book.genres.join(', ')}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+      <BooksTable books={books} />
 
       <AllGenres
         data={allGenresData}

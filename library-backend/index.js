@@ -87,7 +87,7 @@ const typeDefs = `
   type Query {
     bookCount: Int
     authorCount: Int
-    allBooks(author: String, genre: String): [Book!]!
+    allBooks(author: String, genres: [String]): [Book!]!
     allAuthors: [Author!]!
     allUsers: [User!]!
     allGenres: [String]
@@ -102,18 +102,23 @@ const typeDefs = `
   }
 `;
 
-const booksOf = async ({ author, genre }) => {
+const booksOf = async ({ author, genres }) => {
   let query;
+
+  if (genres !== undefined) {
+    query =
+      genres === null || genres.length === 0
+        ? {}
+        : { genres: { $all: genres } };
+  }
+
   if (author) {
     const a = await Author.findOne({ name: author });
-    query = { author: a._id.toString() };
-
-    if (genre) {
-      query.genres = genre;
+    if (a._id) {
+      query = { ...query, author: a._id.toString() };
     }
-  } else if (genre) {
-    query = { genres: genre };
   }
+
   return query ? await Book.find(query).populate('author') : [];
 };
 
