@@ -1,12 +1,11 @@
 import { useApolloClient } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { Button, Container, Nav, Navbar } from 'react-bootstrap';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Link, Outlet } from 'react-router-dom';
 import NotificationContainer from '../components/Notification/NotificationContainer';
 import loginService from '../services/login';
 
 export default function Root() {
-  const navigate = useNavigate();
   const client = useApolloClient();
   const [token, setToken] = useState();
   const [notification, setNotification] = useState({
@@ -31,18 +30,34 @@ export default function Root() {
           <Navbar.Toggle aria-controls='responsive-navbar-nav' />
           <Navbar.Collapse id='responsive-navbar-nav'>
             <Nav className='me-auto'>
-              <Nav.Link href='/'>Authors</Nav.Link>
-              <Nav.Link href='/books'>Books</Nav.Link>
+              <Link to='/' className='nav-link'>
+                Authors
+              </Link>
+              <Link to='/books' className='nav-link'>
+                Books
+              </Link>
               {token && (
                 <>
-                  <Nav.Link href='/addbook'>Add Book</Nav.Link>
-                  <Nav.Link href='/recommended'>Recommended</Nav.Link>
+                  <Link to='/addbook' className='nav-link'>
+                    Add Book
+                  </Link>
+                  <Link to='/recommended' className='nav-link'>
+                    Recommended
+                  </Link>
                 </>
               )}
             </Nav>
             <Nav>
-              {token && <Nav.Link onClick={() => logout()}>logout</Nav.Link>}
-              {!token && <Nav.Link href='/login'>login</Nav.Link>}
+              {token && (
+                <Link className='nav-link' onClick={() => logout()}>
+                  logout
+                </Link>
+              )}
+              {!token && (
+                <Link to='/login' className='nav-link'>
+                  login
+                </Link>
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>

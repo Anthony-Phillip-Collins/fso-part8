@@ -35,9 +35,12 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+const options = {};
+
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache(options),
+  connectToDevTools: true,
 });
 
 const router = createBrowserRouter([
