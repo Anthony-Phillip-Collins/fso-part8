@@ -1,34 +1,27 @@
 import { useApolloClient, useLazyQuery, useQuery } from '@apollo/client';
-import { ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, ME } from '../services/queries';
+import { useEffect, useRef } from 'react';
+import { ALL_BOOKS, ME } from '../services/queries';
 import BooksTable from '../components/BooksTable/BooksTable';
-import { useEffect } from 'react';
 import loginService from '../services/login';
 
 const Books = () => {
-  const [allBooks, { data: allBooksData }] = useLazyQuery(ALL_BOOKS);
-  const { data: userData, refetch: refetchUserData } = useQuery(ME);
   const client = useApolloClient();
-
-  const allAuthors = client.readQuery({
-    query: ALL_AUTHORS,
-  });
-
-  const me = client.readQuery({
+  const [allBooks, { data: allBooksData }] = useLazyQuery(ALL_BOOKS);
+  const { data: userData, refetch: refetchUser } = useQuery(ME);
+  const userCache = client.readQuery({
     query: ME,
   });
+  const favouriteGenre = useRef();
+  const books = allBooksData?.allBooks;
 
   useEffect(() => {
-    console.log('Recommended mounted', allAuthors?.allAuthors, me, userData);
-    if (me?.me?.favouriteGenre) {
-      console.log('Load Books');
-      allBooks({ variables: { genres: [me?.me?.favouriteGenre] } });
+    favouriteGenre.current = userCache?.me?.favouriteGenre;
+    if (favouriteGenre.current) {
+      allBooks({ variables: { genres: [favouriteGenre.current] } });
     } else {
-      console.log('Me Refetch', me?.me?.username);
-      refetchUserData();
+      refetchUser();
     }
-  }, [allBooks, refetchUserData, allAuthors, me, userData]);
-
-  const books = allBooksData?.allBooks;
+  }, [allBooks, refetchUser, userCache, userData]);
 
   if (!loginService.getUser()) {
     return (
@@ -42,14 +35,15 @@ const Books = () => {
     <div>
       <h2>Recommended</h2>
 
-      {me?.me?.favouriteGenre && (
-        <p>
-          Books in your favourite genre:{' '}
-          <strong>{me?.me?.favouriteGenre}</strong>
-        </p>
+      {favouriteGenre.current && books && (
+        <>
+          <p>
+            Books in your favourite genre:{' '}
+            <strong>{favouriteGenre.current}</strong>
+          </p>
+          <BooksTable books={books} />
+        </>
       )}
-
-      {books && <BooksTable books={books} />}
     </div>
   );
 };
