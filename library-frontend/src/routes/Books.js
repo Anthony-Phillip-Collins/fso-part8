@@ -19,27 +19,18 @@ const Books = () => {
   };
 
   useEffect(() => {
-    console.log('refetch');
     refetch({ genres: selectedGenres });
-  }, [selectedGenres]);
+  }, [refetch, selectedGenres]);
 
   if (loading) {
     return null;
   }
 
-  const books = data.allBooks;
-  const booksByGenre = books.filter(
-    ({ genres }) =>
-      genres.filter((genre) => selectedGenres.includes(genre)).length >=
-      selectedGenres.length
-  );
-  const reactBooks = selectedGenres.length === 0 ? books : booksByGenre;
-
   return (
     <div>
       <h2>books</h2>
 
-      <BooksTable books={books} />
+      <BooksTable books={data?.allBooks} />
 
       <AllGenres
         data={allGenresData}

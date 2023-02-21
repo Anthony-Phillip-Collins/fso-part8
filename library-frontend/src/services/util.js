@@ -12,13 +12,13 @@ export const getErrorMessageFromApolloGraphQL = (error) => {
 
   const defaultMessage = 'An error has ocurred, please check your input.';
 
-  console.log('.///////////');
-  console.log(
-    graphQLError && 'GraphQL',
-    apolloError && 'ApolloError',
-    errorType
-  );
-  console.log('.///////////');
+  // console.log('.///////////');
+  // console.log(
+  //   graphQLError && 'GraphQL',
+  //   apolloError && 'ApolloError',
+  //   errorType
+  // );
+  // console.log('.///////////');
 
   return (
     propError?.properties?.message ||

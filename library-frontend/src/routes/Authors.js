@@ -4,7 +4,7 @@ import AuthorsBirthYear from '../components/AuthorsBirthYear';
 import { Container, Table } from 'react-bootstrap';
 
 const Authors = () => {
-  const { loading, error, data } = useQuery(ALL_AUTHORS);
+  const { loading, data } = useQuery(ALL_AUTHORS);
 
   if (loading) {
     return null;

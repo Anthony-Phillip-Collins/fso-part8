@@ -6,22 +6,23 @@ import loginService from '../services/login';
 
 const Books = () => {
   const client = useApolloClient();
+  const favouriteGenre = useRef();
   const [allBooks, { data: allBooksData }] = useLazyQuery(ALL_BOOKS);
   const { data: userData, refetch: refetchUser } = useQuery(ME);
   const userCache = client.readQuery({
     query: ME,
   });
-  const favouriteGenre = useRef();
   const books = allBooksData?.allBooks;
 
   useEffect(() => {
     favouriteGenre.current = userCache?.me?.favouriteGenre;
+
     if (favouriteGenre.current) {
       allBooks({ variables: { genres: [favouriteGenre.current] } });
     } else {
       refetchUser();
     }
-  }, [allBooks, refetchUser, userCache, userData]);
+  }, [allBooks, refetchUser, userCache, userData, allBooksData]);
 
   if (!loginService.getUser()) {
     return (

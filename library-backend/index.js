@@ -127,7 +127,6 @@ const resolvers = {
     bookCount: async () => (await Book.find({})).length,
     authorCount: async () => (await Author.find({})).length,
     allBooks: async (root, args, context) => {
-      console.log('allBooks resolver', 1, root, 2, args, 3, context);
       return Object.keys(args).length > 0
         ? await booksOf(args)
         : await Book.find({}).populate('author');
@@ -143,8 +142,7 @@ const resolvers = {
       return genres;
     },
     me: async (root, args, context) => {
-      console.log('me resolver', 1, root, 2, args, 3, context);
-      return context.currentUser; //(await User.find({}))[1]; //context.currentUser;
+      return context.currentUser;
     },
   },
   Mutation: {
@@ -328,8 +326,6 @@ startStandaloneServer(server, {
     const auth = req ? req.headers.authorization : null;
     const bearer = 'bearer ';
 
-    console.log('///////////// ????');
-
     if (auth && auth.toLowerCase().startsWith(bearer)) {
       const decodedToken = jwt.verify(
         auth.substring(bearer.length),
@@ -337,7 +333,6 @@ startStandaloneServer(server, {
       );
 
       const currentUser = await User.findById(decodedToken.id);
-      // console.log('jwt.verify currentUser:', currentUser);
       return { currentUser };
     }
   },

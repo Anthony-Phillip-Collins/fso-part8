@@ -1,6 +1,5 @@
-import { useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { Button, Container } from 'react-bootstrap';
 import { Form, useOutletContext } from 'react-router-dom';
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../services/queries';
 import { getErrorMessageFromApolloGraphQL } from '../services/util';
@@ -10,9 +9,13 @@ export default function AuthorsBirthYear({ authors }) {
   const [born, setBorn] = useState('');
   const { setNotification } = useOutletContext();
 
-  const [editAuthor, { data, loading, error }] = useMutation(EDIT_AUTHOR, {
+  const [editAuthor, { data, error }] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
   });
+
+  const client = useApolloClient();
+
+  const allAuthors = client.readQuery({ query: ALL_AUTHORS });
 
   const submit = (event) => {
     event.preventDefault();
@@ -63,17 +66,6 @@ export default function AuthorsBirthYear({ authors }) {
           </div>
           {name !== '' && (
             <>
-              {/* <label className='mb-3 mt-3'>
-                born
-                <input
-                  type='number'
-                  value={born}
-                  onChange={({ target }) => setBorn(target.value)}
-                  className='form-control'
-                />
-              </label>
-              <Button type='submit'>update author</Button> */}
-
               <div className='form-group mb-3'>
                 <label htmlFor='genre'>Born</label>
                 <div className='d-flex'>
