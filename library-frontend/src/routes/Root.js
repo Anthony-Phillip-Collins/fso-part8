@@ -5,12 +5,29 @@ import { Link, Outlet } from 'react-router-dom';
 import NotificationContainer from '../components/Notification/NotificationContainer';
 import loginService from '../services/login';
 
+import { useQuery, useMutation, useSubscription } from '@apollo/client';
+import { BOOK_ADDED } from '../services/queries';
+
 export default function Root() {
   const client = useApolloClient();
   const [token, setToken] = useState();
   const [notification, setNotification] = useState({
     text: '',
     isError: false,
+  });
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({
+      data: {
+        data: {
+          bookAdded: { title, author },
+        },
+      },
+    }) => {
+      setNotification({
+        text: `The book ${title} by ${author.name} has been added!`,
+      });
+    },
   });
 
   const logout = () => {
