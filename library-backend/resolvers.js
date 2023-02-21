@@ -142,7 +142,6 @@ const resolvers = {
         });
         await book.validate();
       } catch (error) {
-        console.log('//////// ADD BOOK', error);
         throw BAD_USER_INPUT_ERROR({
           message: `Saving book with the title "${args.title}" by ${args.author} failed!`,
           error,
