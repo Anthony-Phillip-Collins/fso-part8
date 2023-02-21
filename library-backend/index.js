@@ -65,6 +65,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   formatError: (formattedError, error) => {
+    console.log('ERROR', error);
     switch (formattedError.extensions.code) {
       case ApolloServerErrorCode.BAD_USER_INPUT:
         if (formattedError.message.includes('$published')) {
