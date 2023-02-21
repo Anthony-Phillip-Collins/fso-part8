@@ -1,11 +1,13 @@
 const { ApolloServerErrorCode } = require('@apollo/server/errors');
 const { GraphQLError } = require('graphql');
+const { PubSub } = require('graphql-subscriptions');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('./src/utils/config');
 const User = require('./src/models/User');
 const Author = require('./src/models/Author');
 const Book = require('./src/models/Book');
+const pubsub = new PubSub();
 
 const booksOf = async ({ author, genres }) => {
   let query;
@@ -152,9 +154,11 @@ const resolvers = {
         await newAuthor.save();
       }
 
-      await book.save();
+      book = (await book.save()).populate('author');
 
-      return book.populate('author');
+      pubsub.publish('BOOK_ADDED', { bookAdded: book });
+
+      return book;
     },
     editAuthor: async (root, args, context) => {
       if (!context.currentUser) {
@@ -169,6 +173,11 @@ const resolvers = {
       }
       author.born = args.setBornTo;
       return await author.save();
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator('BOOK_ADDED'),
     },
   },
   Author: {

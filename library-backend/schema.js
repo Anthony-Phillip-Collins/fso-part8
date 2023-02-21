@@ -1,6 +1,10 @@
 const gql = String.raw;
 
 const typeDefs = gql`
+  type Subscription {
+    bookAdded: Book!
+  }
+
   type User {
     username: String!
     hashedPassword: String!

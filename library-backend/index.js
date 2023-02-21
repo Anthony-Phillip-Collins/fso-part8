@@ -1,7 +1,20 @@
+const { WebSocketServer } = require('ws');
+const { useServer } = require('graphql-ws/lib/use/ws');
+
 const { ApolloServer } = require('@apollo/server');
 const { ApolloServerErrorCode } = require('@apollo/server/errors');
-const { startStandaloneServer } = require('@apollo/server/standalone');
-const { PORT } = require('./src/utils/config');
+
+const { expressMiddleware } = require('@apollo/server/express4');
+const {
+  ApolloServerPluginDrainHttpServer,
+} = require('@apollo/server/plugin/drainHttpServer');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const http = require('http');
+
+const { PORT, JWT_SECRET } = require('./src/utils/config');
 const jwt = require('jsonwebtoken');
 const connectToDb = require('./src/utils/connectToDb');
 
@@ -61,47 +74,83 @@ const resetDb = async () => {
 
 connect();
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  formatError: (formattedError, error) => {
-    switch (formattedError.extensions.code) {
-      case ApolloServerErrorCode.BAD_USER_INPUT:
-        if (formattedError.message.includes('$published')) {
+const start = async () => {
+  const app = express();
+  const httpServer = http.createServer(app);
+
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/',
+  });
+
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
+  const serverCleanup = useServer({ schema }, wsServer);
+
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
+    formatError: (formattedError, error) => {
+      switch (formattedError.extensions.code) {
+        case ApolloServerErrorCode.BAD_USER_INPUT:
+          if (formattedError.message.includes('$published')) {
+            return {
+              ...formattedError,
+              message:
+                'Please provide the year the book was published! (Must be a number)',
+            };
+          }
+          break;
+        case ApolloServerErrorCode.INTERNAL_SERVER_ERROR:
           return {
             ...formattedError,
-            message:
-              'Please provide the year the book was published! (Must be a number)',
+            message: 'There has been a server error!',
           };
+      }
+
+      return formattedError;
+    },
+  });
+
+  await server.start();
+
+  app.use(
+    '/',
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req, res }) => {
+        const auth = req ? req.headers.authorization : null;
+        const bearer = 'bearer ';
+
+        if (auth && auth.toLowerCase().startsWith(bearer)) {
+          const decodedToken = jwt.verify(
+            auth.substring(bearer.length),
+            JWT_SECRET
+          );
+
+          const currentUser = await User.findById(decodedToken.id);
+          return { currentUser };
         }
-        break;
-      case ApolloServerErrorCode.INTERNAL_SERVER_ERROR:
-        return {
-          ...formattedError,
-          message: 'There has been a server error!',
-        };
-    }
+      },
+    })
+  );
 
-    return formattedError;
-  },
-});
+  const PORT = 4000;
 
-startStandaloneServer(server, {
-  listen: { port: PORT },
-  context: async ({ req, res }) => {
-    const auth = req ? req.headers.authorization : null;
-    const bearer = 'bearer ';
+  httpServer.listen(PORT, () =>
+    console.log(`Server is now running on http://localhost:${PORT}`)
+  );
+};
 
-    if (auth && auth.toLowerCase().startsWith(bearer)) {
-      const decodedToken = jwt.verify(
-        auth.substring(bearer.length),
-        process.env.JWT_SECRET
-      );
-
-      const currentUser = await User.findById(decodedToken.id);
-      return { currentUser };
-    }
-  },
-}).then(({ url }) => {
-  console.log(`Server ready at ${url}`);
-});
+start();
