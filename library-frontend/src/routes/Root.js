@@ -6,7 +6,7 @@ import NotificationContainer from '../components/Notification/NotificationContai
 import loginService from '../services/login';
 
 import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import { BOOK_ADDED } from '../services/queries';
+import { ALL_BOOKS, BOOK_ADDED } from '../services/queries';
 
 export default function Root() {
   const client = useApolloClient();
@@ -19,13 +19,11 @@ export default function Root() {
   useSubscription(BOOK_ADDED, {
     onData: ({
       data: {
-        data: {
-          bookAdded: { title, author },
-        },
+        data: { bookAdded },
       },
     }) => {
       setNotification({
-        text: `The book ${title} by ${author.name} has been added!`,
+        text: `The book ${bookAdded.title} by ${bookAdded.author.name} has been added!`,
       });
     },
   });

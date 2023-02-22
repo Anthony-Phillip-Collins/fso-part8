@@ -1,4 +1,4 @@
-import { useApolloClient, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { Form, useOutletContext } from 'react-router-dom';
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../services/queries';
@@ -10,12 +10,25 @@ export default function AuthorsBirthYear({ authors }) {
   const { setNotification } = useOutletContext();
 
   const [editAuthor, { data, error }] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
+    // refetchQueries: [{ query: ALL_AUTHORS }],
+
+    update(cache, { data }) {
+      const { allAuthors } = cache.readQuery({
+        query: ALL_AUTHORS,
+      });
+
+      cache.writeQuery({
+        query: ALL_AUTHORS,
+        data: {
+          allAuthors: allAuthors.map((author) => {
+            return author.name === data.editAuthor.name
+              ? { ...author, born: data.editAuthor.born }
+              : author;
+          }),
+        },
+      });
+    },
   });
-
-  const client = useApolloClient();
-
-  const allAuthors = client.readQuery({ query: ALL_AUTHORS });
 
   const submit = (event) => {
     event.preventDefault();
