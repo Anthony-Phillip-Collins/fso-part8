@@ -54,22 +54,24 @@ const resetDb = async () => {
     };
   });
 
-  Author.insertMany(a, function (error, authorDocs) {
-    const b = books.map((book) => {
-      const author = authorDocs.find((author) => author.name === book.author);
-      return {
-        title: book.title,
-        published: book.published,
-        author: author._id.toString(),
-        genres: book.genres,
-      };
-    });
+  let _a = a.map((authorData) => new Author({ ...authorData }));
 
-    Book.insertMany(b, async function (error, bookDocs) {
-      authors = authorDocs;
-      books = await Book.find({}).populate('author');
-    });
+  let _b = books.map((book) => {
+    const author = _a.find((author) => author.name === book.author);
+    delete book.id;
+    return { ...book, author: author._id.toString() };
   });
+
+  _b = _b.map((bookData) => new Book({ ...bookData }));
+  _a = _a.map((author) => {
+    author.books = _b
+      .filter((book) => book.author.toString() === author._id.toString())
+      .map(({ _id }) => _id.toString());
+    author.save();
+    return author;
+  });
+
+  _b.forEach((book) => book.save());
 };
 
 connect();

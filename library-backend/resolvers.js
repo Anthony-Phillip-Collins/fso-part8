@@ -27,6 +27,19 @@ const booksOf = async ({ author, genres }) => {
   }
 
   return query ? await Book.find(query).populate('author') : [];
+
+  /* testing transforming population */
+  // return query ? await Book.find(query).populate(transforms.author) : [];
+};
+
+const transforms = {
+  author: {
+    path: 'author',
+    transform: function (doc) {
+      doc.bookCount = (doc.bookCount || 0) + 100;
+      return doc;
+    },
+  },
 };
 
 const resolvers = {
@@ -36,7 +49,7 @@ const resolvers = {
     allBooks: async (root, args, context) => {
       return Object.keys(args).length > 0
         ? await booksOf(args)
-        : await Book.find({}).populate('author');
+        : await Book.find({}).populate(transforms.author);
     },
     allAuthors: async () => await Author.find({}),
     allUsers: async () => await User.find({}),
@@ -99,12 +112,11 @@ const resolvers = {
         throw ACCESS_DENIED_ERROR();
       }
 
-      const existingAuthor = await Author.findOne({
+      let author = await Author.findOne({
         name: args.author,
       });
 
-      let newAuthor;
-      let authorId = existingAuthor?._id.toString();
+      let authorId = author?._id.toString();
 
       const existingBook = await Book.findOne({
         author: authorId,
@@ -117,16 +129,17 @@ const resolvers = {
         });
       }
 
-      if (!existingAuthor) {
+      if (!author) {
         try {
-          newAuthor = new Author({
+          author = new Author({
             name: args.author,
             born: args.born || null,
+            books: [],
           });
 
-          authorId = newAuthor._id.toString();
+          authorId = author._id.toString();
 
-          await newAuthor.validate();
+          await author.validate();
         } catch (error) {
           throw BAD_USER_INPUT_ERROR({
             message: `Saving the author ${args.author} failed!`,
@@ -150,9 +163,8 @@ const resolvers = {
         });
       }
 
-      if (newAuthor) {
-        await newAuthor.save();
-      }
+      author.books = author.books.concat(book._id);
+      await author.save();
 
       book = (await book.save()).populate('author');
 
@@ -182,8 +194,10 @@ const resolvers = {
   },
   Author: {
     bookCount: async (root) => {
-      const b = await booksOf({ author: root.name });
-      return b.length;
+      /* querying books like this cause n+1 problem, using an array of book ids on Author instead */
+      // const b = await booksOf({ author: root.name });
+      // return b.length;
+      return root.books.length;
     },
   },
 };

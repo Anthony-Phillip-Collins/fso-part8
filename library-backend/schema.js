@@ -28,6 +28,7 @@ const typeDefs = gql`
     name: String!
     born: Int
     bookCount: Int!
+    books: [ID!]
   }
 
   type Query {

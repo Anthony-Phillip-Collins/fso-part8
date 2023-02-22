@@ -68,7 +68,7 @@ const Books = () => {
       });
     };
 
-    console.log('allBooksUpdated', allBooksUpdated);
+    // console.log('allBooksUpdated', allBooksUpdated);
   };
 
   useSubscription(BOOK_ADDED, {
