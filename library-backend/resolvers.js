@@ -51,7 +51,7 @@ const resolvers = {
         ? await booksOf(args)
         : await Book.find({}).populate(transforms.author);
     },
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => await Author.find({}).populate('books'),
     allUsers: async () => await User.find({}),
     allGenres: async () => {
       const books = await Book.find({});
