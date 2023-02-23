@@ -1,24 +1,25 @@
 import { useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { Form, useOutletContext } from 'react-router-dom';
-import { ALL_AUTHORS, EDIT_AUTHOR } from '../services/queries';
 import { getErrorMessageFromApolloGraphQL } from '../services/util';
+import allAuthorsQuery from '../graphql/queries/allAuthorsQuery';
+import editAuthorMutation from '../graphql/mutations/editAuthorMutation';
 
 export default function AuthorsBirthYear({ authors }) {
   const [name, setName] = useState('');
   const [born, setBorn] = useState('');
   const { setNotification } = useOutletContext();
 
-  const [editAuthor, { data, error }] = useMutation(EDIT_AUTHOR, {
-    // refetchQueries: [{ query: ALL_AUTHORS }],
+  const [editAuthor, { data, error }] = useMutation(editAuthorMutation, {
+    // refetchQueries: [{ query: allAuthorsQuery }],
 
     update(cache, { data }) {
       const { allAuthors } = cache.readQuery({
-        query: ALL_AUTHORS,
+        query: allAuthorsQuery,
       });
 
       cache.writeQuery({
-        query: ALL_AUTHORS,
+        query: allAuthorsQuery,
         data: {
           allAuthors: allAuthors.map((author) => {
             return author.name === data.editAuthor.name
@@ -59,7 +60,7 @@ export default function AuthorsBirthYear({ authors }) {
   return (
     <>
       <div>
-        <h3>Set birthyear</h3>
+        <h3>Set year of birth</h3>
         <Form onSubmit={submit}>
           <div className='mb-3'>
             <select

@@ -111,7 +111,13 @@ const start = async () => {
             return {
               ...formattedError,
               message:
-                'Please provide the year the book was published! (Must be a number)',
+                'Please provide the year the book was published! (e.g. 2021)',
+            };
+          } else if (formattedError.message.includes('$setBornTo')) {
+            return {
+              ...formattedError,
+              message:
+                'Please provide the year the author was born! (e.g. 1976)',
             };
           }
           break;

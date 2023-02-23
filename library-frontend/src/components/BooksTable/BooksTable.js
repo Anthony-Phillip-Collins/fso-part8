@@ -1,8 +1,12 @@
 import { Table } from 'react-bootstrap';
 
 const BooksTable = ({ books }) => {
+  if (!books) return null;
+
   return (
     <>
+      <h2>Books</h2>
+
       <Table>
         <thead>
           <tr>

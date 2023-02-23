@@ -1,28 +1,54 @@
 import { useApolloClient, useLazyQuery, useQuery } from '@apollo/client';
 import { useEffect, useRef } from 'react';
-import { ALL_BOOKS, ME } from '../services/queries';
 import BooksTable from '../components/BooksTable/BooksTable';
+import allBooksQuery from '../graphql/queries/allBooksQuery';
+import meQuery from '../graphql/queries/meQuery';
 import loginService from '../services/login';
 
 const Books = () => {
-  const client = useApolloClient();
   const favouriteGenre = useRef();
-  const [allBooks, { data: allBooksData }] = useLazyQuery(ALL_BOOKS);
-  const { data: userData, refetch: refetchUser } = useQuery(ME);
+  const [allBooks, { data: allBooksData }] = useLazyQuery(allBooksQuery);
+  // const { data: allBooksData, refetch } = useQuery(allBooksQuery, {
+  //   variables: {
+  //     genres: favouriteGenre.current ? [favouriteGenre.current] : [],
+  //   },
+  // });
+
+  const { data: userData, refetch: refetchUser } = useQuery(meQuery);
+
+  const client = useApolloClient();
   const userCache = client.readQuery({
-    query: ME,
+    query: meQuery,
   });
+
+  const booksCache = client.readQuery({
+    query: allBooksQuery,
+    variables: { genres: [favouriteGenre.current] },
+  });
+
   const books = allBooksData?.allBooks;
 
   useEffect(() => {
     favouriteGenre.current = userCache?.me?.favouriteGenre;
 
     if (favouriteGenre.current) {
+      console.log('LAZY');
       allBooks({ variables: { genres: [favouriteGenre.current] } });
     } else {
       refetchUser();
     }
-  }, [allBooks, refetchUser, userCache, userData, allBooksData]);
+
+    console.log(
+      'userCache',
+      userCache,
+      'booksCache',
+      booksCache,
+      'allBooksData',
+      allBooksData,
+      'favouriteGenre',
+      favouriteGenre.current
+    );
+  }, [refetchUser, userCache, userData, allBooksData, booksCache]);
 
   if (!loginService.getUser()) {
     return (

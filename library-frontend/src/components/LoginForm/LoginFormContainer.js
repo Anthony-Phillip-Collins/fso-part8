@@ -1,14 +1,14 @@
 import { getErrorMessageFromApolloGraphQL } from './../../services/util';
-import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { LOGIN } from '../../services/queries';
+import loginMutation from '../../graphql/mutations/loginMutation';
 import loginService from '../../services/login';
 import LoginForm from './LoginForm';
 import { Button } from 'react-bootstrap';
 import { useOutletContext } from 'react-router-dom';
 
 export default function LoginFormContainer() {
-  const [login, { data, error }] = useMutation(LOGIN);
+  const [login, { data, error }] = useMutation(loginMutation);
   const client = useApolloClient();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

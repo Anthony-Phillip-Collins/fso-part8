@@ -2,13 +2,15 @@ import { useQuery, useSubscription } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import BooksTable from '../components/BooksTable/BooksTable';
 import AllGenres from '../components/AllGenres';
-import { ALL_BOOKS, ALL_GENRES, BOOK_ADDED } from '../services/queries';
+import allBooksQuery from '../graphql/queries/allBooksQuery';
+import allGenresQuery from '../graphql/queries/allGenresQuery';
+import bookAddedSubscription from '../graphql/subscriptions/bookAddedSubscription';
 
 const Books = () => {
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { loading, data, refetch } = useQuery(ALL_BOOKS, {});
+  const { loading, data, refetch } = useQuery(allBooksQuery, {});
 
-  const { data: allGenresData } = useQuery(ALL_GENRES);
+  const { data: allGenresData } = useQuery(allGenresQuery);
 
   const onGenreSelect = (genre) => {
     setSelectedGenres(selectedGenres.concat(genre));
@@ -28,7 +30,7 @@ const Books = () => {
       const {
         data: { allBooks },
       } = await client.query({
-        query: ALL_BOOKS,
+        query: allBooksQuery,
       });
       return [...allBooks];
     };
@@ -43,7 +45,7 @@ const Books = () => {
 
     /* not updating UI ?! */
     client.writeQuery({
-      query: ALL_BOOKS,
+      query: allBooksQuery,
       data: {
         allBooks: allBooksUpdated,
       },
@@ -71,7 +73,7 @@ const Books = () => {
     // console.log('allBooksUpdated', allBooksUpdated);
   };
 
-  useSubscription(BOOK_ADDED, {
+  useSubscription(bookAddedSubscription, {
     onData: async ({ client, data }) => {
       /* cache is being updated, but not updating UI ?! */
       // updateCache({ client, data });
@@ -89,8 +91,6 @@ const Books = () => {
 
   return (
     <div>
-      <h2>books</h2>
-
       <BooksTable books={data?.allBooks} />
 
       <AllGenres

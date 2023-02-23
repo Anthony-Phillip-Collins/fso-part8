@@ -1,28 +1,55 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import loginService from '../services/login';
-import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../services/queries';
 import { getErrorMessageFromApolloGraphQL } from '../services/util';
+import addBookMutation from '../graphql/mutations/addBookMutation';
+import allAuthorsQuery from '../graphql/queries/allAuthorsQuery';
+import allBooksQuery from '../graphql/queries/allBooksQuery';
+import loginService from '../services/login';
+import BooksTable from '../components/BooksTable/BooksTable';
+import AuthorsTable from '../components/AuthorsTable/AuthorsTable';
 
 const AddBook = () => {
-  const [addBook, { data, error }] = useMutation(ADD_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
-  });
+  const { data: allBooksData } = useQuery(allBooksQuery);
+  const { data: allAuthorsData } = useQuery(allAuthorsQuery);
+  const [addBook, { data, error }] = useMutation(addBookMutation);
 
   const { setNotification } = useOutletContext();
 
-  const [title, setTitle] = useState('Some Title');
+  const [title, setTitle] = useState(Math.random().toString());
   const [author, setAuthor] = useState('Some Author');
   const [published, setPublished] = useState('1910');
   const [genre, setGenre] = useState('design');
-  const [genres, setGenres] = useState([]);
+  const [genres, setGenres] = useState(['design']);
+
+  const updateCache = (cache, { data: { addBook } }) => {
+    const bookCacheId = cache.identify(addBook);
+    const authorCacheId = cache.identify(addBook.author);
+    cache.modify({
+      fields: {
+        allBooks: (existingFieldData, { toReference }) => {
+          return [...existingFieldData, toReference(bookCacheId)];
+        },
+        allAuthors: (existingFieldData, { toReference, readField }) => {
+          const authorRef = toReference(authorCacheId);
+          const authorName = readField('name', authorRef);
+          const fieldData = existingFieldData.find(
+            (author) => readField('name', author) === authorName
+          );
+          return fieldData
+            ? existingFieldData
+            : existingFieldData.concat(authorRef);
+        },
+      },
+    });
+  };
 
   const submit = async (event) => {
     event.preventDefault();
 
     await addBook({
       variables: { title, author, published: parseInt(published) || 0, genres },
+      update: updateCache,
     });
 
     setTitle('');
@@ -66,7 +93,7 @@ const AddBook = () => {
     <div>
       <h2>add book</h2>
 
-      <form onSubmit={submit}>
+      <form onSubmit={submit} className='mb-5'>
         <div className='form-group mb-3'>
           <label htmlFor='title'>Title</label>
           <input
@@ -133,6 +160,14 @@ const AddBook = () => {
           create book
         </button>
       </form>
+
+      <p className='mt-5 mb-5'>
+        Tables below are just added to verify that modifying the cache works.
+      </p>
+
+      <BooksTable books={allBooksData?.allBooks} />
+
+      <AuthorsTable authors={allAuthorsData?.allAuthors} />
     </div>
   );
 };

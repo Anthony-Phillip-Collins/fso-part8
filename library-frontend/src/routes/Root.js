@@ -5,8 +5,8 @@ import { Link, Outlet } from 'react-router-dom';
 import NotificationContainer from '../components/Notification/NotificationContainer';
 import loginService from '../services/login';
 
-import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import { ALL_BOOKS, BOOK_ADDED } from '../services/queries';
+import { useSubscription } from '@apollo/client';
+import bookAddedSubscription from '../graphql/subscriptions/bookAddedSubscription';
 
 export default function Root() {
   const client = useApolloClient();
@@ -16,7 +16,7 @@ export default function Root() {
     isError: false,
   });
 
-  useSubscription(BOOK_ADDED, {
+  useSubscription(bookAddedSubscription, {
     onData: ({
       data: {
         data: { bookAdded },
