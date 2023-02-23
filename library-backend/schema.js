@@ -1,62 +1,41 @@
-const gql = String.raw;
+const { merge } = require('lodash');
 
-const typeDefs = gql`
-  type Subscription {
-    bookAdded: Book!
-  }
+const {
+  typeDef: Author,
+  resolvers: authorResolvers,
+} = require('./src/schema/author');
 
-  type User {
-    username: String!
-    hashedPassword: String!
-    favouriteGenre: String!
-    id: ID!
-  }
+const {
+  typeDef: Book,
+  resolvers: bookResolvers,
+} = require('./src/schema/book');
 
-  type Token {
-    value: String!
-  }
+const {
+  typeDef: User,
+  resolvers: userResolvers,
+} = require('./src/schema/User');
 
-  type Book {
-    title: String!
-    published: Int!
-    author: Author!
-    genres: [String!]!
-    id: ID!
-  }
-
-  type Author {
-    name: String!
-    born: Int
-    bookCount: Int!
-    books: [Book!]
-    id: ID!
-  }
-
+const Query = `
   type Query {
-    bookCount: Int
-    authorCount: Int
-    allBooks(author: String, genres: [String]): [Book!]!
-    allAuthors: [Author!]!
-    allUsers: [User!]!
-    allGenres: [String]
-    me: User
-  }
-
-  type Mutation {
-    createUser(
-      username: String!
-      password: String!
-      favouriteGenre: String!
-    ): User
-    login(username: String!, password: String!): Token
-    addBook(
-      title: String!
-      published: Int!
-      author: String!
-      genres: [String!]!
-    ): Book
-    editAuthor(name: String!, setBornTo: Int!): Author
+    _empty: String
   }
 `;
 
-module.exports = typeDefs;
+const Mutation = `
+  type Mutation {
+    _empty: String
+  }
+`;
+
+const Subscription = `
+  type Subscription {
+    _empty: String
+  }
+`;
+
+const resolvers = {};
+
+module.exports = {
+  typeDefs: [Query, Mutation, Subscription, Author, Book, User],
+  resolvers: merge(resolvers, authorResolvers, bookResolvers, userResolvers),
+};

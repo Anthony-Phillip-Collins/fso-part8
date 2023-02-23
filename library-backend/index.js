@@ -22,8 +22,10 @@ const User = require('./src/models/User');
 const Author = require('./src/models/Author');
 const Book = require('./src/models/Book');
 
-const typeDefs = require('./schema');
-const resolvers = require('./resolvers');
+// const typeDefs = require('./schema-old');
+// const resolvers = require('./resolvers');
+
+const { typeDefs, resolvers } = require('./schema');
 
 let { authors, books } = require('./src/data/dummies');
 

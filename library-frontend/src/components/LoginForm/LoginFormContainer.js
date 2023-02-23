@@ -1,3 +1,4 @@
+import { getErrorMessageFromApolloGraphQL } from './../../services/util';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { LOGIN } from '../../services/queries';
@@ -14,6 +15,8 @@ export default function LoginFormContainer() {
   const [user, setUser] = useState();
   const { setToken } = useOutletContext();
 
+  const { setNotification } = useOutletContext();
+
   const onLogin = async () => {
     await login({ variables: { username, password } });
   };
@@ -28,8 +31,15 @@ export default function LoginFormContainer() {
       setUser(usr);
       loginService.setUser(usr);
     }
+
+    if (error) {
+      setNotification({
+        text: getErrorMessageFromApolloGraphQL(error),
+        isError: true,
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, error]);
 
   if (user) {
     return (

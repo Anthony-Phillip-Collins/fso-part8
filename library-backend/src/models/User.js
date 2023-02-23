@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: [true, 'The name of the user is required!'],
     unique: [true, 'The user already exists!'],
-    minlength: [3, 'The name of the user must have at least 4 chracters!'],
+    minlength: [3, 'The name of the user must have at least 4 characters!'],
   },
   hashedPassword: {
     type: String,
