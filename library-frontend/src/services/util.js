@@ -27,3 +27,16 @@ export const getErrorMessageFromApolloGraphQL = (error) => {
     defaultMessage
   );
 };
+
+export const addToCache = ({
+  queryData,
+  client,
+  existingFieldData,
+  util: { toReference },
+}) => {
+  const cacheId = client.cache.identify(queryData);
+  const exists = existingFieldData.find(({ __ref }) => __ref === cacheId);
+  return exists
+    ? [...existingFieldData]
+    : [...existingFieldData.concat(toReference(cacheId))];
+};

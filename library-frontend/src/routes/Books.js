@@ -1,9 +1,8 @@
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import BooksTable from '../components/BooksTable/BooksTable';
 import AllGenres from '../components/AllGenres';
 import allBooksQuery from '../graphql/queries/allBooksQuery';
-import bookAddedSubscription from '../graphql/subscriptions/bookAddedSubscription';
 
 const Books = () => {
   const [selectedGenres, setSelectedGenres] = useState([]);
@@ -22,24 +21,6 @@ const Books = () => {
   const onGenreDeselect = (genre) => {
     setSelectedGenres(selectedGenres.filter((g) => g !== genre));
   };
-
-  useSubscription(bookAddedSubscription, {
-    onData: async ({
-      client,
-      data: {
-        data: { bookAdded },
-      },
-    }) => {
-      client.cache.modify({
-        fields: {
-          allBooks: (existingFieldData, { toReference }) => {
-            const bookCacheId = client.cache.identify(bookAdded);
-            return [...existingFieldData, toReference(bookCacheId)];
-          },
-        },
-      });
-    },
-  });
 
   useEffect(() => {
     refetch({ genres: selectedGenres });

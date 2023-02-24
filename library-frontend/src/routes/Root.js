@@ -7,6 +7,7 @@ import loginService from '../services/login';
 
 import { useSubscription } from '@apollo/client';
 import bookAddedSubscription from '../graphql/subscriptions/bookAddedSubscription';
+import { addToCache } from '../services/util';
 
 export default function Root() {
   const client = useApolloClient();
@@ -22,6 +23,40 @@ export default function Root() {
         data: { bookAdded },
       },
     }) => {
+      setNotification({
+        text: `The book ${bookAdded.title} by ${bookAdded.author.name} has been added!`,
+      });
+    },
+  });
+
+  useSubscription(bookAddedSubscription, {
+    onData: async ({
+      client,
+      data: {
+        data: { bookAdded },
+      },
+    }) => {
+      client.cache.modify({
+        fields: {
+          allBooks: (existingFieldData, util) => {
+            addToCache({
+              queryData: bookAdded,
+              client,
+              existingFieldData,
+              util,
+            });
+          },
+          allAuthors: (existingFieldData, util) => {
+            addToCache({
+              queryData: bookAdded.author,
+              client,
+              existingFieldData,
+              util,
+            });
+          },
+        },
+      });
+
       setNotification({
         text: `The book ${bookAdded.title} by ${bookAdded.author.name} has been added!`,
       });
