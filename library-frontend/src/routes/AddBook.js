@@ -61,7 +61,7 @@ const AddBook = () => {
 
   const addGenre = () => {
     if (genre && genre.length > 0) {
-      setGenres(genres.concat(genre));
+      setGenres(genres.filter((g) => g !== genre).concat(genre));
       setGenre('');
     }
   };

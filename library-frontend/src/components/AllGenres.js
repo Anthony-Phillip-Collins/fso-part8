@@ -29,11 +29,11 @@ const GenreButton = ({ genre, onSelect, onDeselect }) => {
   );
 };
 
-const AllGenres = ({ data, onSelect, onDeselect }) => {
-  if (data) {
+const AllGenres = ({ allGenres, onSelect, onDeselect }) => {
+  if (allGenres) {
     return (
       <>
-        {data.allGenres.map((genre) => (
+        {allGenres.map((genre) => (
           <GenreButton
             genre={genre}
             key={genre}

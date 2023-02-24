@@ -3,7 +3,7 @@ import bookDetails from '../fragments/bookDetailsFragment';
 
 const bookAddedSubscription = gql`
   subscription {
-    BookAdded {
+    bookAdded {
       ...BookDetails
     }
   }

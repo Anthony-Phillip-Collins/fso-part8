@@ -20,11 +20,10 @@ import Authors from './routes/Authors';
 import Recommended from './routes/Recommended';
 import Login from './routes/Login';
 import RootBoundary from './components/RootBoundary';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { setContext } from '@apollo/client/link/context';
 import loginService from './services/login';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const authLink = setContext((_, { headers }) => {
   const token = loginService.getUser()?.token;

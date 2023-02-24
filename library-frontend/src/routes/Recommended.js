@@ -1,4 +1,4 @@
-import { useApolloClient, useLazyQuery, useQuery } from '@apollo/client';
+import { useLazyQuery, useQuery } from '@apollo/client';
 import { useEffect, useRef } from 'react';
 import BooksTable from '../components/BooksTable/BooksTable';
 import allBooksQuery from '../graphql/queries/allBooksQuery';
@@ -8,47 +8,17 @@ import loginService from '../services/login';
 const Books = () => {
   const favouriteGenre = useRef();
   const [allBooks, { data: allBooksData }] = useLazyQuery(allBooksQuery);
-  // const { data: allBooksData, refetch } = useQuery(allBooksQuery, {
-  //   variables: {
-  //     genres: favouriteGenre.current ? [favouriteGenre.current] : [],
-  //   },
-  // });
-
   const { data: userData, refetch: refetchUser } = useQuery(meQuery);
 
-  const client = useApolloClient();
-  const userCache = client.readQuery({
-    query: meQuery,
-  });
-
-  const booksCache = client.readQuery({
-    query: allBooksQuery,
-    variables: { genres: [favouriteGenre.current] },
-  });
-
-  const books = allBooksData?.allBooks;
-
   useEffect(() => {
-    favouriteGenre.current = userCache?.me?.favouriteGenre;
+    favouriteGenre.current = userData?.me?.favouriteGenre;
 
     if (favouriteGenre.current) {
-      console.log('LAZY');
       allBooks({ variables: { genres: [favouriteGenre.current] } });
     } else {
       refetchUser();
     }
-
-    console.log(
-      'userCache',
-      userCache,
-      'booksCache',
-      booksCache,
-      'allBooksData',
-      allBooksData,
-      'favouriteGenre',
-      favouriteGenre.current
-    );
-  }, [refetchUser, userCache, userData, allBooksData, booksCache]);
+  }, [refetchUser, allBooks, userData?.me?.favouriteGenre]);
 
   if (!loginService.getUser()) {
     return (
@@ -62,13 +32,13 @@ const Books = () => {
     <div>
       <h2>Recommended</h2>
 
-      {favouriteGenre.current && books && (
+      {favouriteGenre.current && allBooksData?.allBooks && (
         <>
           <p>
             Books in your favourite genre:{' '}
             <strong>{favouriteGenre.current}</strong>
           </p>
-          <BooksTable books={books} />
+          <BooksTable books={allBooksData?.allBooks} />
         </>
       )}
     </div>

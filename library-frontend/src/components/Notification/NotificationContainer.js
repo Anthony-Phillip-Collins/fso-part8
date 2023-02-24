@@ -14,7 +14,7 @@ function NotificationContainer({ notification, setNotification }) {
     return () => {
       clearTimeout(timeoutId.current);
     };
-  }, [notification.text]);
+  }, [notification.text, setNotification]);
 
   return (
     <Notification text={notification.text} isError={notification.isError} />

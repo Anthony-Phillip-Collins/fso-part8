@@ -3,14 +3,17 @@ import { useEffect, useState } from 'react';
 import BooksTable from '../components/BooksTable/BooksTable';
 import AllGenres from '../components/AllGenres';
 import allBooksQuery from '../graphql/queries/allBooksQuery';
-import allGenresQuery from '../graphql/queries/allGenresQuery';
 import bookAddedSubscription from '../graphql/subscriptions/bookAddedSubscription';
 
 const Books = () => {
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { loading, data, refetch } = useQuery(allBooksQuery, {});
+  const { loading, data, refetch } = useQuery(allBooksQuery, { variables: [] });
 
-  const { data: allGenresData } = useQuery(allGenresQuery);
+  const allGenresData = () => {
+    return data.allBooks.reduce((genres, book) => {
+      return genres.concat(book.genres.filter((g) => !genres.includes(g)));
+    }, []);
+  };
 
   const onGenreSelect = (genre) => {
     setSelectedGenres(selectedGenres.concat(genre));
@@ -20,64 +23,21 @@ const Books = () => {
     setSelectedGenres(selectedGenres.filter((g) => g !== genre));
   };
 
-  const updateCache = async ({
-    client,
-    data: {
-      data: { bookAdded },
-    },
-  }) => {
-    const allBooksCached = async () => {
-      const {
-        data: { allBooks },
-      } = await client.query({
-        query: allBooksQuery,
-      });
-      return [...allBooks];
-    };
-
-    const allBooksUpdated = (await allBooksCached())
-      .filter(
-        (book) =>
-          book.title !== bookAdded.title &&
-          book.author.name !== bookAdded.author.name
-      )
-      .concat(bookAdded);
-
-    /* not updating UI ?! */
-    client.writeQuery({
-      query: allBooksQuery,
+  useSubscription(bookAddedSubscription, {
+    onData: async ({
+      client,
       data: {
-        allBooks: allBooksUpdated,
+        data: { bookAdded },
       },
-    });
-
-    const modifyExample = () => {
-      const id = client.cache.identify(allBooksUpdated[0]);
+    }) => {
       client.cache.modify({
-        id,
-        optimistic: true,
         fields: {
-          title(cachedName) {
-            return 'Modified Cache!';
-          },
-          published(cachedName) {
-            return 100;
-          },
-          genres(cached) {
-            return [cached[0]].concat('modified');
+          allBooks: (existingFieldData, { toReference }) => {
+            const bookCacheId = client.cache.identify(bookAdded);
+            return [...existingFieldData, toReference(bookCacheId)];
           },
         },
       });
-    };
-
-    // console.log('allBooksUpdated', allBooksUpdated);
-  };
-
-  useSubscription(bookAddedSubscription, {
-    onData: async ({ client, data }) => {
-      /* cache is being updated, but not updating UI ?! */
-      // updateCache({ client, data });
-      refetch();
     },
   });
 
@@ -94,7 +54,7 @@ const Books = () => {
       <BooksTable books={data?.allBooks} />
 
       <AllGenres
-        data={allGenresData}
+        allGenres={allGenresData()}
         onSelect={onGenreSelect}
         onDeselect={onGenreDeselect}
       />
