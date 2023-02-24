@@ -10,17 +10,19 @@ import BooksTable from '../components/BooksTable/BooksTable';
 import AuthorsTable from '../components/AuthorsTable/AuthorsTable';
 
 const AddBook = () => {
+  const debug = false;
+
   const { data: allBooksData } = useQuery(allBooksQuery);
   const { data: allAuthorsData } = useQuery(allAuthorsQuery);
   const [addBook, { data, error }] = useMutation(addBookMutation);
 
   const { setNotification } = useOutletContext();
 
-  const [title, setTitle] = useState(Math.random().toString());
-  const [author, setAuthor] = useState('Some Author');
-  const [published, setPublished] = useState('1910');
-  const [genre, setGenre] = useState('design');
-  const [genres, setGenres] = useState(['design']);
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [published, setPublished] = useState('');
+  const [genre, setGenre] = useState('');
+  const [genres, setGenres] = useState([]);
 
   const updateCache = (cache, { data: { addBook } }) => {
     const bookCacheId = cache.identify(addBook);
@@ -161,13 +163,16 @@ const AddBook = () => {
         </button>
       </form>
 
-      <p className='mt-5 mb-5'>
-        Tables below are just added to verify that modifying the cache works.
-      </p>
-
-      <BooksTable books={allBooksData?.allBooks} />
-
-      <AuthorsTable authors={allAuthorsData?.allAuthors} />
+      {debug && (
+        <>
+          <p className='mt-5 mb-5'>
+            Tables below are just added to verify that modifying the cache
+            works.
+          </p>
+          <BooksTable books={allBooksData?.allBooks} />
+          <AuthorsTable authors={allAuthorsData?.allAuthors} />
+        </>
+      )}
     </div>
   );
 };
